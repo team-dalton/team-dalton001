@@ -21,6 +21,11 @@ const pageTitle = title ? `${title} | Team Dalton` : 'Team Dalton';
 const ogImage = Astro.site ? new URL(url(image), Astro.site).href : url(image);
 const path = Astro.url.pathname;
 const publishedWorks = (await getWorks()).filter((work) => !work.data.draft);
+
+// "© 2026" in the first year, then a range such as "© 2026–2028" (updates whenever the site is rebuilt).
+const FIRST_YEAR = 2026;
+const currentYear = new Date().getFullYear();
+const copyrightYears = currentYear > FIRST_YEAR ? `${FIRST_YEAR}–${currentYear}` : `${FIRST_YEAR}`;
 ---
 
 <!doctype html>
@@ -94,14 +99,20 @@ const publishedWorks = (await getWorks()).filter((work) => !work.data.draft);
     </div>
 
     <footer class="footer container">
-      <a class="footer-brand" href={url('/')} aria-label="Team Dalton ホーム">
-        <img src={url('/media/logo.webp')} alt="Team Dalton" width="1200" height="239" loading="lazy" />
-      </a>
-      <div class="footer-links">
-        <a href={url('/about/')}>About</a>
-        <a href={url('/works/')}>Works</a>
-        <a href={CONTACT_URL} target="_blank" rel="noopener">Contact</a>
-        <a href="#top">Top</a>
+      <div class="footer-main">
+        <a class="footer-brand" href={url('/')} aria-label="Team Dalton ホーム">
+          <img src={url('/media/logo.webp')} alt="Team Dalton" width="1200" height="239" loading="lazy" />
+        </a>
+        <div class="footer-links">
+          <a href={url('/about/')}>About</a>
+          <a href={url('/works/')}>Works</a>
+          <a href={CONTACT_URL} target="_blank" rel="noopener">Contact</a>
+          <a href="#top">Top</a>
+        </div>
+      </div>
+      <div class="footer-legal">
+        <p>© {copyrightYears} Team Dalton. All rights reserved.</p>
+        <p>Not an official Minecraft product. Not approved by or associated with Mojang or Microsoft.</p>
       </div>
     </footer>
 

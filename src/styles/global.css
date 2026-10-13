@@ -1511,12 +1511,30 @@ body.modal-open {
 /* ---------- Footer ---------- */
 
 .footer {
-  padding: 2rem 0 3rem;
+  padding: 2rem 0 2.4rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.footer-main {
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 1rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.footer-legal {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.3rem 1.5rem;
+  margin-top: 1.4rem;
+}
+
+.footer-legal p {
+  max-width: none;
+  font-size: 0.78rem;
+  line-height: 1.6;
+  color: rgba(245, 247, 250, 0.45);
 }
 
 .footer-brand img {
@@ -1686,7 +1704,7 @@ html:not(.js) .reveal {
     width: 100%;
   }
 
-  .footer {
+  .footer-main {
     flex-direction: column;
     align-items: flex-start;
   }
