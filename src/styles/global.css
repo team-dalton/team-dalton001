@@ -615,6 +615,14 @@ p {
   border-color: var(--brand);
 }
 
+/* "Opens another site" icon after a link's text. */
+.external-icon {
+  width: 0.95em;
+  height: 0.95em;
+  margin-left: 0.4em;
+  vertical-align: -0.1em;
+}
+
 /* ---------- Scroll progress rail ---------- */
 
 .scroll-progress {
