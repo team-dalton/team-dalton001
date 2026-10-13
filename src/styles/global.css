@@ -1277,7 +1277,9 @@ body.modal-open {
 .about-banner {
   position: relative;
   z-index: 2;
-  height: clamp(240px, 46vh, 520px);
+  /* Tall enough to read as an opening image rather than a strip. */
+  height: clamp(420px, 82vh, 920px);
+  height: clamp(420px, 82svh, 920px);
   overflow: hidden;
 }
 
@@ -1472,6 +1474,12 @@ html:not(.js) .reveal {
 
   .work-about.has-aside {
     grid-template-columns: 1fr;
+  }
+
+  /* On narrow screens a tall banner would crop the wordmark in the picture, so keep its sides in view. */
+  .about-banner {
+    height: auto;
+    aspect-ratio: 4 / 3;
   }
 
   .leader-card {
