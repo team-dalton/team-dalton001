@@ -1275,11 +1275,19 @@ body.modal-open {
 
 /* Wide picture across the top of the About page, fading into the page below. */
 .about-banner {
+  /* 0 -> 1 while the banner is pinned (set in site.js). */
+  --banner-progress: 0;
+  --logo-progress: var(--banner-progress);
   position: relative;
   z-index: 2;
   /* Fills the screen on arrival; the page content follows as you scroll. */
   height: 100vh;
   height: 100svh;
+}
+
+.about-banner-stage {
+  position: relative;
+  height: 100%;
   overflow: hidden;
 }
 
@@ -1290,7 +1298,36 @@ body.modal-open {
   object-fit: cover;
 }
 
-.about-banner::after {
+/* Wide screens with motion allowed: the picture is pinned and, as the page scrolls,
+   eases out of a slight zoom and draws in to a rounded, dimmed frame before moving on. */
+@media (min-width: 901px) {
+  .about-banner.is-animated {
+    height: 190vh;
+    height: 190svh;
+  }
+
+  .about-banner.is-animated .about-banner-stage {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    height: 100svh;
+  }
+
+  .about-banner.is-animated img {
+    transform: scale(calc(1.16 - var(--banner-progress) * 0.16));
+    clip-path: inset(
+      calc(var(--banner-progress) * 11%) calc(var(--banner-progress) * 9%) round calc(var(--banner-progress) * 32px)
+    );
+    filter: brightness(calc(1 - var(--banner-progress) * 0.3));
+    will-change: transform, clip-path;
+  }
+
+  .about-banner.is-animated .about-banner-stage::after {
+    opacity: calc(1 - var(--banner-progress));
+  }
+}
+
+.about-banner-stage::after {
   content: "";
   position: absolute;
   inset: 0;
@@ -1305,14 +1342,18 @@ body.modal-open {
   padding-top: 3.5rem;
 }
 
+.section.is-centered {
+  text-align: center;
+}
+
 .leader-card {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  gap: 2rem;
-  align-items: center;
-  max-width: 920px;
-  padding: 2rem;
-  border-left: 2px solid var(--brand);
+  justify-items: center;
+  gap: 1.4rem;
+  max-width: 760px;
+  margin-inline: auto;
+  padding: 2.4rem 2rem;
+  text-align: center;
 }
 
 .leader-photo {
@@ -1327,12 +1368,14 @@ body.modal-open {
 
 .leader-body {
   display: grid;
+  justify-items: center;
   gap: 0.8rem;
 }
 
 .leader-heading {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.9rem;
 }
 
@@ -1568,6 +1611,10 @@ html:not(.js) .reveal {
   /* On narrow screens a tall banner would crop the wordmark in the picture, so keep its sides in view. */
   .about-banner {
     height: auto;
+  }
+
+  .about-banner-stage {
+    height: auto;
     aspect-ratio: 4 / 3;
   }
 
@@ -1581,7 +1628,6 @@ html:not(.js) .reveal {
   }
 
   .leader-card {
-    grid-template-columns: 1fr;
     gap: 1.2rem;
     padding: 1.5rem;
   }

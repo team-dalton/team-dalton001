@@ -119,9 +119,25 @@ if (tagline && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
   };
 }
 
+/* ---------- About banner (pinned picture that draws in while scrolling) ---------- */
+
+const aboutBanner = document.querySelector('.about-banner');
+let updateAboutBanner = () => {};
+
+if (aboutBanner && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  aboutBanner.classList.add('is-animated');
+  updateAboutBanner = () => {
+    // Zero on narrow screens, where the banner is not pinned.
+    const pinnedDistance = aboutBanner.offsetHeight - window.innerHeight;
+    const progress = pinnedDistance > 0 ? clamp(window.scrollY / pinnedDistance, 0, 1) : 0;
+    aboutBanner.style.setProperty('--banner-progress', progress.toFixed(3));
+  };
+}
+
 const updateOnScroll = () => {
   updateLogoScrub();
   updateTagline();
+  updateAboutBanner();
   updateVideoDarkness();
   updatePageProgress();
   updateScrollHighlights();
