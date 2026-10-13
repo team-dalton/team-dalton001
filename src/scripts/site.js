@@ -14,6 +14,9 @@ if (logoHero) {
   } else {
     // The animation is complete at this share of the pinned distance; the rest holds the finished logo.
     const COMPLETE_AT = 0.8;
+    // The page opens partway into the clip, where the logo is already faintly lit,
+    // so the first screen is not empty; scrolling brings it up to full brightness.
+    const START_AT = 0.28;
     let videoFailed = false;
 
     updateLogoScrub = () => {
@@ -28,7 +31,7 @@ if (logoHero) {
       logoHero.classList.toggle('is-static', !videoReady);
 
       if (!videoFailed && logoVideo.readyState >= 1 && Number.isFinite(logoVideo.duration)) {
-        const targetTime = progress * Math.max(logoVideo.duration - 0.05, 0);
+        const targetTime = (START_AT + (1 - START_AT) * progress) * Math.max(logoVideo.duration - 0.05, 0);
         if (Math.abs(logoVideo.currentTime - targetTime) > 0.01) {
           logoVideo.currentTime = targetTime;
         }

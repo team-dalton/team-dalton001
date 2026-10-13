@@ -283,7 +283,8 @@ html.js body:has(.logo-hero:not(.is-complete)) .site-header {
   display: none;
   width: min(76vw, 1100px);
   height: auto;
-  opacity: var(--logo-progress, 1);
+  /* Faintly visible from the start, like the video. */
+  opacity: calc(0.35 + var(--logo-progress, 1) * 0.65);
 }
 
 .logo-hero.is-static .logo-video {
@@ -301,20 +302,22 @@ html.js body:has(.logo-hero:not(.is-complete)) .site-header {
   transform: translateX(-50%);
   display: grid;
   justify-items: center;
-  gap: 0.7rem;
-  font-size: 0.72rem;
-  font-weight: 700;
+  gap: 0.8rem;
+  font-size: 0.9rem;
+  font-weight: 800;
   letter-spacing: 0.3em;
   text-indent: 0.3em;
   text-transform: uppercase;
-  color: var(--text-dim);
+  color: var(--text);
+  text-shadow: 0 0 14px rgba(0, 0, 0, 0.6);
   opacity: calc(1 - var(--logo-progress, 0) * 4);
 }
 
 .scroll-cue::after {
   content: "";
-  width: 1px;
-  height: 2.6rem;
+  width: 2px;
+  height: 3.6rem;
+  border-radius: 999px;
   background: linear-gradient(to bottom, var(--brand), transparent);
   animation: scroll-cue 1.8s ease-in-out infinite;
   transform-origin: top;
