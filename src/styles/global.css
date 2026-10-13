@@ -270,22 +270,15 @@ html.js body:has(.logo-hero:not(.is-complete)) .site-header {
   margin: auto;
 }
 
-/* The clip is enlarged so the logo spans most of the screen, and eases up to full size as it lights. */
+/* The clip is enlarged so the logo spans most of the screen. The size stays fixed,
+   so the only motion is the animation inside the video itself. */
 .logo-video {
   /* The lettering is about half the clip's width, so 1.6 makes it roughly 80% of the screen. */
-  --logo-scale-from: 1.3;
-  --logo-scale-to: 1.6;
+  --logo-scale: 1.6;
   width: 100%;
   height: 100%;
   object-fit: contain;
-  transform: scale(var(--logo-scale-to));
-  animation: logo-zoom 2.6s cubic-bezier(0.2, 0.7, 0.2, 1) both;
-}
-
-@keyframes logo-zoom {
-  from {
-    transform: scale(var(--logo-scale-from));
-  }
+  transform: scale(var(--logo-scale));
 }
 
 /* Still logo: fades in by itself when the video cannot be used. */
@@ -303,7 +296,6 @@ html.js body:has(.logo-hero:not(.is-complete)) .site-header {
 @keyframes logo-still-in {
   from {
     opacity: 0;
-    transform: scale(0.86);
   }
 }
 
@@ -552,14 +544,24 @@ footer {
   font-size: calc(var(--tagline-width) / 9.1);
   font-weight: 800;
   line-height: 1.3;
+  /* Liquid glow: two soft pools of light inside the letters. Their positions (--gx/--gy and
+     --hx/--hy) are moved by site.js: one follows the pointer closely, the other trails behind it,
+     and both drift on their own when the pointer is still. */
+  --gx: 30%;
+  --gy: 40%;
+  --hx: 70%;
+  --hy: 60%;
   color: var(--brand);
-  /* Soft glow, matching the logo */
-  text-shadow:
-    0 0 0.08em rgba(246, 131, 93, 0.85),
-    0 0 0.3em rgba(246, 131, 93, 0.55),
-    0 0 0.8em rgba(246, 131, 93, 0.3);
+  background:
+    radial-gradient(circle at var(--gx) var(--gy), #fff7f1 0%, rgba(255, 220, 202, 0.92) 8%, rgba(255, 220, 202, 0) 30%),
+    radial-gradient(circle at var(--hx) var(--hy), #ffb696 0%, rgba(255, 182, 150, 0) 44%),
+    linear-gradient(100deg, #e5623a, var(--brand) 45%, #ff9d78);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  cursor: default;
   opacity: var(--tagline-main);
-  filter: blur(calc((1 - var(--tagline-main)) * 14px));
+  filter: blur(calc((1 - var(--tagline-main)) * 14px)) drop-shadow(0 0 0.3em rgba(246, 131, 93, 0.5));
   transform: translateY(calc((1 - var(--tagline-main)) * 28px)) scale(calc(0.94 + var(--tagline-main) * 0.06));
 }
 
@@ -1745,7 +1747,6 @@ html:not(.js) .reveal {
   }
 
   .logo-video {
-    --logo-scale-from: 1.4;
-    --logo-scale-to: 1.75;
+    --logo-scale: 1.75;
   }
 }

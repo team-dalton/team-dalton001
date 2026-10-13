@@ -118,6 +118,57 @@ if (tagline && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
   };
 }
 
+/* ---------- Tagline glow (liquid light that follows the pointer) ---------- */
+
+const taglineGlow = document.querySelector('.tagline-main');
+
+if (taglineGlow && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  // Positions are percentages of the text box. `near` follows the pointer closely and `far`
+  // trails behind it; the gap between the two is what makes the light feel liquid.
+  const near = { x: 30, y: 40 };
+  const far = { x: 70, y: 60 };
+  const target = { x: 50, y: 50 };
+  let lastPointerMove = -Infinity;
+  let glowFrame = 0;
+  let glowVisible = false;
+
+  window.addEventListener(
+    'pointermove',
+    (event) => {
+      if (event.pointerType === 'touch') return;
+      const rect = taglineGlow.getBoundingClientRect();
+      target.x = clamp(((event.clientX - rect.left) / rect.width) * 100, -40, 140);
+      target.y = clamp(((event.clientY - rect.top) / rect.height) * 100, -150, 250);
+      lastPointerMove = performance.now();
+    },
+    { passive: true }
+  );
+
+  const moveGlow = (now) => {
+    glowFrame = 0;
+    // With no recent pointer movement (and on touch screens) the light drifts by itself.
+    if (now - lastPointerMove > 2500) {
+      target.x = 50 + Math.sin(now / 1700) * 45;
+      target.y = 50 + Math.cos(now / 2300) * 60;
+    }
+    near.x += (target.x - near.x) * 0.09;
+    near.y += (target.y - near.y) * 0.09;
+    far.x += (target.x - far.x) * 0.035;
+    far.y += (target.y - far.y) * 0.035;
+    taglineGlow.style.setProperty('--gx', `${near.x.toFixed(1)}%`);
+    taglineGlow.style.setProperty('--gy', `${near.y.toFixed(1)}%`);
+    taglineGlow.style.setProperty('--hx', `${far.x.toFixed(1)}%`);
+    taglineGlow.style.setProperty('--hy', `${far.y.toFixed(1)}%`);
+    if (glowVisible) glowFrame = requestAnimationFrame(moveGlow);
+  };
+
+  // Only animate while the words are on screen.
+  new IntersectionObserver(([entry]) => {
+    glowVisible = entry.isIntersecting;
+    if (glowVisible && !glowFrame) glowFrame = requestAnimationFrame(moveGlow);
+  }).observe(taglineGlow);
+}
+
 /* ---------- About banner (pinned picture that draws in while scrolling) ---------- */
 
 const aboutBanner = document.querySelector('.about-banner');
