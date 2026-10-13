@@ -9,12 +9,18 @@ const principal = {
   linkedin: 'https://www.linkedin.com/in/taichi-sudoh001/',
 };
 
-const awards = ['マインクラフトカップ全国大会 学校賞', 'マインクラフトカップ全国大会 奨励賞'];
+// Oldest first. Add a new year at the end.
+const history = [
+  { year: 2023, events: ['東京都奨励賞', 'SuSHi Tech Tokyo 2024 開会式に小池都知事と共に参列'] },
+  { year: 2024, events: ['東京都代表', '全国大会学校賞'] },
+  { year: 2025, events: ['東京都2年連続代表', '全国大会奨励賞'] },
+];
 ---
 
 <Base title="About" hideBrand description="Team Dalton は、マインクラフトカップへの出場をきっかけに立ち上げられた、ドルトン東京学園の生徒を中心とした有志組織です。">
   <header class="about-banner" id="top">
     <img src={url('/media/team-dalton-cover.webp')} alt="Team Dalton の作品" />
+    <span class="scroll-cue" aria-hidden="true">Scroll</span>
   </header>
 
   <main>
@@ -47,11 +53,24 @@ const awards = ['マインクラフトカップ全国大会 学校賞', 'マイ�
       </div>
     </section>
 
-    <section class="section is-tight container tracked-section" id="awards">
-      <h2 class="section-title">Awards</h2>
-      <ul class="award-list reveal">
-        {awards.map((award) => <li>{award}</li>)}
-      </ul>
+    <section class="section is-tight container tracked-section history" id="awards">
+      <div>
+        <h2 class="section-title">History &amp; Awards</h2>
+      </div>
+      <ol class="timeline">
+        {
+          history.map((entry) => (
+            <li class="timeline-item reveal">
+              <h3 class="timeline-year">{entry.year}</h3>
+              <ul class="timeline-events">
+                {entry.events.map((event) => (
+                  <li>{event}</li>
+                ))}
+              </ul>
+            </li>
+          ))
+        }
+      </ol>
     </section>
 
     <section class="section container tracked-section" id="contact">

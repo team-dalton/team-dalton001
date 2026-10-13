@@ -1277,9 +1277,9 @@ body.modal-open {
 .about-banner {
   position: relative;
   z-index: 2;
-  /* Tall enough to read as an opening image rather than a strip. */
-  height: clamp(420px, 82vh, 920px);
-  height: clamp(420px, 82svh, 920px);
+  /* Fills the screen on arrival; the page content follows as you scroll. */
+  height: 100vh;
+  height: 100svh;
   overflow: hidden;
 }
 
@@ -1295,6 +1295,10 @@ body.modal-open {
   position: absolute;
   inset: 0;
   background: linear-gradient(to bottom, rgba(0, 0, 0, 0.25) 0%, rgba(0, 0, 0, 0) 25%, rgba(0, 0, 0, 0) 78%, var(--bg) 100%);
+}
+
+.about-banner .scroll-cue {
+  z-index: 1;
 }
 
 .section.is-after-banner {
@@ -1356,6 +1360,91 @@ body.modal-open {
   margin: 1.4rem 0 0;
   padding: 0;
   list-style: none;
+}
+
+/* History tree (About page): heading on the left, the tree on the right.
+   The tree is a vertical trunk with a node per year and a short branch per event. */
+.history {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr);
+  gap: 3rem;
+  align-items: start;
+}
+
+.timeline {
+  position: relative;
+  margin: 0.4rem 0 0;
+  padding: 0 0 0 2.8rem;
+  list-style: none;
+}
+
+.timeline::before {
+  content: "";
+  position: absolute;
+  left: calc(0.6rem - 1px);
+  top: 1rem;
+  bottom: 1rem;
+  width: 2px;
+  border-radius: 999px;
+  background: linear-gradient(to bottom, var(--brand), rgba(246, 131, 93, 0.18));
+}
+
+.timeline-item {
+  position: relative;
+  padding-bottom: 3rem;
+}
+
+.timeline-item:last-child {
+  padding-bottom: 0;
+}
+
+.timeline-item::before {
+  content: "";
+  position: absolute;
+  left: -2.8rem;
+  top: 0.95rem;
+  width: 1.2rem;
+  height: 1.2rem;
+  border-radius: 50%;
+  border: 2px solid var(--brand);
+  background: var(--bg);
+  box-shadow: 0 0 14px var(--brand-glow);
+  box-sizing: border-box;
+}
+
+.timeline-year {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: clamp(2.2rem, 4vw, 3.2rem);
+  font-weight: 700;
+  line-height: 1.2;
+  color: rgba(245, 247, 250, 0.94);
+}
+
+.timeline-events {
+  display: grid;
+  gap: 0.4rem;
+  margin: 0.7rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.timeline-events li {
+  position: relative;
+  padding-left: 1.5rem;
+  font-size: clamp(1.05rem, 1.6vw, 1.3rem);
+  color: var(--text);
+  line-height: 1.7;
+}
+
+.timeline-events li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.85em;
+  width: 0.9rem;
+  height: 1px;
+  background: rgba(246, 131, 93, 0.6);
 }
 
 /* ---------- Footer ---------- */
@@ -1480,6 +1569,15 @@ html:not(.js) .reveal {
   .about-banner {
     height: auto;
     aspect-ratio: 4 / 3;
+  }
+
+  .about-banner .scroll-cue {
+    display: none;
+  }
+
+  .history {
+    grid-template-columns: 1fr;
+    gap: 0;
   }
 
   .leader-card {
