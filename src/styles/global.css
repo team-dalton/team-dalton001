@@ -1346,6 +1346,16 @@ body.modal-open {
   text-align: center;
 }
 
+/* Blocks with their own width need centring too, not just their text. */
+.section.is-centered p,
+.section.is-centered .eyebrow {
+  margin-inline: auto;
+}
+
+.section.is-centered .hero-actions {
+  justify-content: center;
+}
+
 .leader-card {
   display: grid;
   justify-items: center;
