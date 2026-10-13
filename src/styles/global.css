@@ -248,20 +248,18 @@ html.js body:has(.logo-hero:not(.is-complete)) .site-header {
   min-height: 78svh;
 }
 
-/* Home: the logo stays pinned to the screen while scrolling plays its animation,
-   then scrolls away once the animation has finished. */
+/* Home: the logo animation fills the first screen and plays by itself on arrival. */
 .logo-hero {
   position: relative;
   z-index: 2;
-  height: 240vh;
+  height: 100vh;
+  height: 100svh;
   background: var(--bg);
 }
 
 .logo-stage {
-  position: sticky;
-  top: 0;
-  height: 100vh;
-  height: 100svh;
+  position: relative;
+  height: 100%;
   overflow: hidden;
 }
 
@@ -272,19 +270,51 @@ html.js body:has(.logo-hero:not(.is-complete)) .site-header {
   margin: auto;
 }
 
+/* The clip is enlarged so the logo spans most of the screen, and eases up to full size as it lights. */
 .logo-video {
+  /* The lettering is about half the clip's width, so 1.6 makes it roughly 80% of the screen. */
+  --logo-scale-from: 1.3;
+  --logo-scale-to: 1.6;
   width: 100%;
   height: 100%;
   object-fit: contain;
+  transform: scale(var(--logo-scale-to));
+  animation: logo-zoom 2.6s cubic-bezier(0.2, 0.7, 0.2, 1) both;
 }
 
-/* Still logo: fades in with scrolling when the video cannot be used. */
+@keyframes logo-zoom {
+  from {
+    transform: scale(var(--logo-scale-from));
+  }
+}
+
+/* Still logo: fades in by itself when the video cannot be used. */
 .logo-still {
   display: none;
-  width: min(76vw, 1100px);
+  width: min(90vw, 1500px);
   height: auto;
-  /* Faintly visible from the start, like the video. */
-  opacity: calc(0.35 + var(--logo-progress, 1) * 0.65);
+  animation: logo-still-in 1.6s ease both;
+}
+
+.logo-hero.is-reduced .logo-still {
+  animation: none;
+}
+
+@keyframes logo-still-in {
+  from {
+    opacity: 0;
+    transform: scale(0.86);
+  }
+}
+
+/* The scroll cue waits until the logo has finished appearing. */
+.logo-hero .scroll-cue {
+  opacity: 0;
+  transition: opacity 0.8s ease;
+}
+
+.logo-hero.is-complete .scroll-cue {
+  opacity: 1;
 }
 
 .logo-hero.is-static .logo-video {
@@ -334,21 +364,18 @@ html.js body:has(.logo-hero:not(.is-complete)) .site-header {
   }
 }
 
-/* No scroll animation: without JavaScript or with reduced motion, show the finished logo on one screen. */
-html:not(.js) .logo-hero,
-.logo-hero.is-reduced {
-  height: 100vh;
-  height: 100svh;
-}
-
+/* Without JavaScript, show the finished logo. */
 html:not(.js) .logo-still {
   display: block;
+  animation: none;
 }
 
-html:not(.js) .logo-video,
-html:not(.js) .scroll-cue,
-.logo-hero.is-reduced .scroll-cue {
+html:not(.js) .logo-video {
   display: none;
+}
+
+html:not(.js) .logo-hero .scroll-cue {
+  opacity: 1;
 }
 
 .hero-content {
@@ -1718,6 +1745,7 @@ html:not(.js) .reveal {
   }
 
   .logo-video {
-    transform: scale(1.12);
+    --logo-scale-from: 1.4;
+    --logo-scale-to: 1.75;
   }
 }

@@ -1,56 +1,52 @@
 const root = document.documentElement;
 const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
 
-/* ---------- Home logo animation (played by scrolling) ---------- */
+/* ---------- Home logo animation (plays by itself on arrival) ---------- */
 
 const logoHero = document.querySelector('.logo-hero');
-let updateLogoScrub = () => {};
 
 if (logoHero) {
   const logoVideo = logoHero.querySelector('.logo-video');
+  // Reveals the navigation and the scroll cue (see global.css).
+  const finishLogo = () => logoHero.classList.add('is-complete');
 
   if (!logoVideo || matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    logoHero.classList.add('is-static', 'is-reduced', 'is-complete');
+    logoHero.classList.add('is-static', 'is-reduced');
+    finishLogo();
   } else {
-    // The animation is complete at this share of the pinned distance; the rest holds the finished logo.
-    const COMPLETE_AT = 0.8;
-    // The page opens partway into the clip, where the logo is already faintly lit,
-    // so the first screen is not empty; scrolling brings it up to full brightness.
-    const START_AT = 0.28;
-    let videoFailed = false;
+    // Skips the near-black opening frames so the logo starts appearing straight away.
+    const START_TIME = 0.3;
+    let started = false;
 
-    updateLogoScrub = () => {
-      const pinnedDistance = Math.max(logoHero.offsetHeight - window.innerHeight, 1);
-      const progress = clamp(window.scrollY / pinnedDistance / COMPLETE_AT, 0, 1);
-      logoHero.style.setProperty('--logo-progress', progress.toFixed(3));
-      // Reveals the navigation (see .site-header in global.css).
-      logoHero.classList.toggle('is-complete', progress >= 1);
+    // If the browser will not play the video (e.g. Low Power Mode), the still logo fades in instead.
+    const showStillLogo = () => {
+      logoHero.classList.add('is-static');
+      window.setTimeout(finishLogo, 1600);
+    };
 
-      // Until the video has a frame to show (or if it fails), the still logo fades in with scrolling instead.
-      const videoReady = !videoFailed && logoVideo.readyState >= 2;
-      logoHero.classList.toggle('is-static', !videoReady);
-
-      if (!videoFailed && logoVideo.readyState >= 1 && Number.isFinite(logoVideo.duration)) {
-        const targetTime = (START_AT + (1 - START_AT) * progress) * Math.max(logoVideo.duration - 0.05, 0);
-        if (Math.abs(logoVideo.currentTime - targetTime) > 0.01) {
-          logoVideo.currentTime = targetTime;
-        }
+    const playLogo = () => {
+      const playPromise = logoVideo.play();
+      if (playPromise && typeof playPromise.catch === 'function') {
+        playPromise.catch(showStillLogo);
       }
     };
 
-    logoVideo.addEventListener('error', () => {
-      videoFailed = true;
-      updateLogoScrub();
-    });
-    ['loadedmetadata', 'loadeddata', 'seeked'].forEach((type) => {
-      logoVideo.addEventListener(type, () => updateLogoScrub());
-    });
+    // Browsers pause silent video in background tabs, so only start (or resume) while the page is on screen.
+    const startLogo = () => {
+      if (document.hidden || logoVideo.ended) return;
+      if (!started) {
+        started = true;
+        logoVideo.currentTime = START_TIME;
+        playLogo();
+      } else if (logoVideo.paused && !logoHero.classList.contains('is-static')) {
+        playLogo();
+      }
+    };
 
-    // Some mobile browsers only draw frames while seeking after the video has been started once.
-    const primePromise = logoVideo.play();
-    if (primePromise && typeof primePromise.then === 'function') {
-      primePromise.then(() => logoVideo.pause()).catch(() => {});
-    }
+    logoVideo.addEventListener('ended', finishLogo);
+    logoVideo.addEventListener('error', showStillLogo);
+    document.addEventListener('visibilitychange', startLogo);
+    startLogo();
   }
 }
 
@@ -138,7 +134,6 @@ if (aboutBanner && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
 }
 
 const updateOnScroll = () => {
-  updateLogoScrub();
   updateTagline();
   updateAboutBanner();
   updateVideoDarkness();
