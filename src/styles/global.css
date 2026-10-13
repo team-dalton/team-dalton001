@@ -273,8 +273,8 @@ html.js body:has(.logo-hero:not(.is-complete)) .site-header {
 /* The clip is enlarged so the logo spans most of the screen. The size stays fixed,
    so the only motion is the animation inside the video itself. */
 .logo-video {
-  /* The lettering is about half the clip's width, so 1.6 makes it roughly 80% of the screen. */
-  --logo-scale: 1.6;
+  /* The lettering is about half the clip's width, so 1.3 makes it roughly 65% of the screen. */
+  --logo-scale: 1.3;
   width: 100%;
   height: 100%;
   object-fit: contain;
@@ -284,7 +284,7 @@ html.js body:has(.logo-hero:not(.is-complete)) .site-header {
 /* Still logo: fades in by itself when the video cannot be used. */
 .logo-still {
   display: none;
-  width: min(90vw, 1500px);
+  width: min(74vw, 1250px);
   height: auto;
   animation: logo-still-in 1.6s ease both;
 }
@@ -1747,6 +1747,6 @@ html:not(.js) .reveal {
   }
 
   .logo-video {
-    --logo-scale: 1.75;
+    --logo-scale: 1.5;
   }
 }
