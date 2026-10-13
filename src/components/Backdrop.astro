@@ -1,0 +1,28 @@
+---
+import { url } from '../lib/url';
+
+interface Props {
+  // Short clips that crossfade in a loop (paths under public/)
+  videos?: string[];
+  // Still image used instead of video, and as the poster while video loads
+  image?: string;
+}
+
+const { videos = [], image } = Astro.props;
+const playlist = videos.map((video) => url(video));
+---
+
+<div class="video-stage" aria-hidden="true" data-playlist={playlist.length ? JSON.stringify(playlist) : undefined}>
+  {image && <img class="backdrop-image" src={url(image)} alt="" />}
+  {
+    playlist.length > 0 && (
+      <>
+        <video class="hero-video is-active" muted playsinline preload="auto" />
+        <video class="hero-video" muted playsinline preload="auto" />
+      </>
+    )
+  }
+  <div class="video-fallback"></div>
+  <div class="video-vignette"></div>
+  <div class="video-darken"></div>
+</div>

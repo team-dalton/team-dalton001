@@ -1,0 +1,26 @@
+---
+import Base from '../../layouts/Base.astro';
+import Backdrop from '../../components/Backdrop.astro';
+import WorkCard from '../../components/WorkCard.astro';
+import { getWorks } from '../../lib/url';
+
+const works = await getWorks();
+const [featured, ...rest] = works;
+---
+
+<Base title="All Works" description="Team Dalton がこれまでに制作したマインクラフト作品の一覧です。">
+  <Backdrop slot="backdrop" image="/media/dalton-tokyo-04.webp" />
+
+  <header class="page-hero container" id="top">
+    <h1 class="main-title">All Works</h1>
+  </header>
+
+  <main>
+    <section class="section container" data-darken-end>
+      <div class="work-grid">
+        {featured && <WorkCard work={featured} featured />}
+        {rest.map((work) => <WorkCard work={work} />)}
+      </div>
+    </section>
+  </main>
+</Base>

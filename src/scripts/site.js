@@ -1,0 +1,409 @@
+const root = document.documentElement;
+const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
+
+/* ---------- Home logo animation (played by scrolling) ---------- */
+
+const logoHero = document.querySelector('.logo-hero');
+let updateLogoScrub = () => {};
+
+if (logoHero) {
+  const logoVideo = logoHero.querySelector('.logo-video');
+
+  if (!logoVideo || matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    logoHero.classList.add('is-static', 'is-reduced', 'is-complete');
+  } else {
+    // The animation is complete at this share of the pinned distance; the rest holds the finished logo.
+    const COMPLETE_AT = 0.8;
+    let videoFailed = false;
+
+    updateLogoScrub = () => {
+      const pinnedDistance = Math.max(logoHero.offsetHeight - window.innerHeight, 1);
+      const progress = clamp(window.scrollY / pinnedDistance / COMPLETE_AT, 0, 1);
+      logoHero.style.setProperty('--logo-progress', progress.toFixed(3));
+      // Reveals the navigation (see .site-header in global.css).
+      logoHero.classList.toggle('is-complete', progress >= 1);
+
+      // Until the video has a frame to show (or if it fails), the still logo fades in with scrolling instead.
+      const videoReady = !videoFailed && logoVideo.readyState >= 2;
+      logoHero.classList.toggle('is-static', !videoReady);
+
+      if (!videoFailed && logoVideo.readyState >= 1 && Number.isFinite(logoVideo.duration)) {
+        const targetTime = progress * Math.max(logoVideo.duration - 0.05, 0);
+        if (Math.abs(logoVideo.currentTime - targetTime) > 0.01) {
+          logoVideo.currentTime = targetTime;
+        }
+      }
+    };
+
+    logoVideo.addEventListener('error', () => {
+      videoFailed = true;
+      updateLogoScrub();
+    });
+    ['loadedmetadata', 'loadeddata', 'seeked'].forEach((type) => {
+      logoVideo.addEventListener(type, () => updateLogoScrub());
+    });
+
+    // Some mobile browsers only draw frames while seeking after the video has been started once.
+    const primePromise = logoVideo.play();
+    if (primePromise && typeof primePromise.then === 'function') {
+      primePromise.then(() => logoVideo.pause()).catch(() => {});
+    }
+  }
+}
+
+/* ---------- Scroll reveal ---------- */
+
+const revealObserver = new IntersectionObserver(
+  (entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('is-visible');
+        revealObserver.unobserve(entry.target);
+      }
+    });
+  },
+  {
+    threshold: 0.16,
+    rootMargin: '0px 0px -8% 0px',
+  }
+);
+
+document.querySelectorAll('.reveal').forEach((element) => {
+  revealObserver.observe(element);
+});
+
+/* ---------- Scroll-driven UI ---------- */
+
+const trackedSections = [...document.querySelectorAll('.tracked-section')];
+const darkenEnd = document.querySelector('[data-darken-end]');
+const scrollProgress = document.querySelector('.scroll-progress');
+
+const updateVideoDarkness = () => {
+  const scrollY = window.scrollY || window.pageYOffset;
+  const fallbackDistance = Math.max((root.scrollHeight - window.innerHeight) * 0.55, 1);
+  const targetY = darkenEnd ? Math.max(darkenEnd.getBoundingClientRect().top + scrollY, 1) : fallbackDistance;
+  root.style.setProperty('--scroll-darkness', clamp(scrollY / targetY, 0, 1).toFixed(3));
+};
+
+const updatePageProgress = () => {
+  const scrollY = window.scrollY || window.pageYOffset;
+  const maxScrollable = Math.max(root.scrollHeight - window.innerHeight, 1);
+  root.style.setProperty('--page-progress', clamp(scrollY / maxScrollable, 0, 1).toFixed(3));
+};
+
+const updateScrollHighlights = () => {
+  const viewportHeight = window.innerHeight;
+  trackedSections.forEach((section) => {
+    const rect = section.getBoundingClientRect();
+    const start = viewportHeight * 0.82;
+    const end = viewportHeight * 0.22;
+    const distance = rect.height + (start - end);
+    const progress = clamp((start - rect.top) / distance, 0, 1);
+    section.style.setProperty('--title-progress', progress.toFixed(3));
+  });
+};
+
+/* ---------- Tagline (appears gradually while scrolling) ---------- */
+
+const tagline = document.querySelector('.tagline');
+let updateTagline = () => {};
+
+if (tagline && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  updateTagline = () => {
+    const rect = tagline.getBoundingClientRect();
+    const textTop = rect.top + parseFloat(getComputedStyle(tagline).paddingTop);
+    const viewportHeight = window.innerHeight;
+    // Starts as the text enters at the bottom of the screen; complete when it reaches the middle.
+    const progress = clamp((viewportHeight * 0.92 - textTop) / (viewportHeight * 0.5), 0, 1);
+    tagline.style.setProperty('--tagline-progress', progress.toFixed(3));
+  };
+}
+
+const updateOnScroll = () => {
+  updateLogoScrub();
+  updateTagline();
+  updateVideoDarkness();
+  updatePageProgress();
+  updateScrollHighlights();
+};
+
+let uiFrameId = 0;
+const scheduleUiUpdate = () => {
+  if (uiFrameId) return;
+  uiFrameId = requestAnimationFrame(() => {
+    uiFrameId = 0;
+    updateOnScroll();
+  });
+};
+
+updateOnScroll();
+window.addEventListener('scroll', scheduleUiUpdate, { passive: true });
+window.addEventListener('resize', updateOnScroll);
+
+if (scrollProgress) {
+  let isProgressDragging = false;
+  let progressRect = null;
+
+  const scrollToProgress = (progress) => {
+    const maxScrollable = Math.max(root.scrollHeight - window.innerHeight, 1);
+    window.scrollTo({ top: progress * maxScrollable, behavior: 'auto' });
+    root.style.setProperty('--page-progress', clamp(progress, 0, 1).toFixed(3));
+  };
+
+  const refreshProgressRect = () => {
+    progressRect = scrollProgress.getBoundingClientRect();
+  };
+
+  const progressFromPointer = (clientY) => {
+    if (!progressRect) refreshProgressRect();
+    if (!progressRect) return 0;
+    return clamp((clientY - progressRect.top) / progressRect.height, 0, 1);
+  };
+
+  scrollProgress.addEventListener('pointerdown', (event) => {
+    event.preventDefault();
+    isProgressDragging = true;
+    refreshProgressRect();
+    scrollProgress.setPointerCapture(event.pointerId);
+    scrollToProgress(progressFromPointer(event.clientY));
+  });
+
+  scrollProgress.addEventListener('pointermove', (event) => {
+    if (!isProgressDragging) return;
+    scrollToProgress(progressFromPointer(event.clientY));
+  });
+
+  const stopProgressDragging = (event) => {
+    if (!isProgressDragging) return;
+    isProgressDragging = false;
+    if (scrollProgress.hasPointerCapture(event.pointerId)) {
+      scrollProgress.releasePointerCapture(event.pointerId);
+    }
+  };
+
+  scrollProgress.addEventListener('pointerup', stopProgressDragging);
+  scrollProgress.addEventListener('pointercancel', stopProgressDragging);
+  window.addEventListener('resize', refreshProgressRect);
+}
+
+/* ---------- Backdrop video playlist ---------- */
+
+const videoStage = document.querySelector('.video-stage[data-playlist]');
+const heroVideos = videoStage ? [...videoStage.querySelectorAll('.hero-video')] : [];
+const playlist = videoStage ? JSON.parse(videoStage.dataset.playlist) : [];
+
+if (heroVideos.length === 2 && playlist.length > 0) {
+  let activeVideoIndex = 0;
+  let activePlaylistIndex = 0;
+  let queuedPlaylistIndex = 1 % playlist.length;
+  let isTransitioningHero = false;
+
+  const setVideoSource = (video, source) => {
+    if (!video || !source || video.dataset.src === source) return;
+    video.src = source;
+    video.dataset.src = source;
+    video.load();
+  };
+
+  const safePlay = (video) => {
+    const playPromise = video?.play();
+    if (playPromise && typeof playPromise.catch === 'function') {
+      playPromise.catch(() => {});
+    }
+  };
+
+  const queueNextHeroVideo = () => {
+    setVideoSource(heroVideos[1 - activeVideoIndex], playlist[queuedPlaylistIndex]);
+  };
+
+  const transitionHeroVideo = () => {
+    if (isTransitioningHero) return;
+    isTransitioningHero = true;
+
+    const currentVideo = heroVideos[activeVideoIndex];
+    const nextVideo = heroVideos[1 - activeVideoIndex];
+
+    nextVideo.currentTime = 0;
+    safePlay(nextVideo);
+    nextVideo.classList.add('is-active');
+    currentVideo.classList.remove('is-active');
+
+    window.setTimeout(() => {
+      currentVideo.pause();
+      activeVideoIndex = 1 - activeVideoIndex;
+      activePlaylistIndex = queuedPlaylistIndex;
+      queuedPlaylistIndex = (activePlaylistIndex + 1) % playlist.length;
+      queueNextHeroVideo();
+      isTransitioningHero = false;
+    }, 280);
+  };
+
+  heroVideos.forEach((video) => {
+    video.addEventListener('timeupdate', () => {
+      if (video !== heroVideos[activeVideoIndex]) return;
+      if (video.duration - video.currentTime <= 0.18) {
+        transitionHeroVideo();
+      }
+    });
+
+    ['ended', 'error'].forEach((type) => {
+      video.addEventListener(type, () => {
+        if (video === heroVideos[activeVideoIndex]) transitionHeroVideo();
+      });
+    });
+  });
+
+  setVideoSource(heroVideos[0], playlist[0]);
+  queueNextHeroVideo();
+  safePlay(heroVideos[0]);
+}
+
+/* ---------- Work rotator (home page) ---------- */
+
+document.querySelectorAll('[data-rotator]').forEach((rotator) => {
+  const slides = [...rotator.querySelectorAll('.work-slide')];
+  const tabs = [...rotator.querySelectorAll('.work-tab')];
+  const bar = rotator.querySelector('.work-rotator-bar-fill');
+  if (slides.length < 2) return;
+
+  const INTERVAL = 6000;
+  const autoplay = Boolean(bar) && !matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let current = 0;
+
+  const show = (index) => {
+    current = (index + slides.length) % slides.length;
+    slides.forEach((slide, i) => {
+      slide.classList.toggle('is-active', i === current);
+      slide.inert = i !== current;
+    });
+    tabs.forEach((tab, i) => {
+      tab.classList.toggle('is-active', i === current);
+      tab.setAttribute('aria-selected', String(i === current));
+    });
+
+    if (autoplay) {
+      // This work's share of the bar, e.g. the 2nd of 4 works runs from 25% to 50%.
+      bar.style.setProperty('--bar-from', String(current / slides.length));
+      bar.style.setProperty('--bar-to', String((current + 1) / slides.length));
+      // The flush in between makes the animation begin again for the new step.
+      bar.classList.remove('is-running');
+      void bar.offsetWidth;
+      bar.classList.add('is-running');
+    }
+  };
+
+  // The bar is the timer: when it has filled, move on to the next work.
+  bar?.addEventListener('animationend', () => show(current + 1));
+
+  tabs.forEach((tab, i) => {
+    tab.addEventListener('click', () => show(i));
+  });
+
+  // Hold the current work (and freeze the bar) while someone is pointing at it or tabbing through it.
+  const pause = () => rotator.classList.add('is-paused');
+  const resume = () => rotator.classList.remove('is-paused');
+  rotator.addEventListener('pointerenter', (event) => {
+    if (event.pointerType === 'mouse') pause();
+  });
+  rotator.addEventListener('pointerleave', (event) => {
+    if (event.pointerType === 'mouse') resume();
+  });
+  rotator.addEventListener('focusin', pause);
+  rotator.addEventListener('focusout', resume);
+
+  rotator.style.setProperty('--rotator-interval', `${INTERVAL}ms`);
+  show(0);
+});
+
+/* ---------- Topic modal (Dalton Tokyo page) ---------- */
+
+const pointChips = [...document.querySelectorAll('.point-chip')];
+const topicModal = document.querySelector('#topic-modal');
+
+if (topicModal && pointChips.length) {
+  const topicModalFrame = topicModal.querySelector('.topic-modal-frame');
+  const topicModalTitle = topicModal.querySelector('#topic-modal-title');
+  const topicModalDescription = topicModal.querySelector('#topic-modal-description');
+  const topicModalImage = topicModal.querySelector('#topic-modal-image');
+  const closeButton = topicModal.querySelector('.topic-modal-close');
+  let lastTrigger = null;
+
+  const openTopicModal = (chip) => {
+    topicModalTitle.textContent = chip.dataset.title;
+    topicModalDescription.textContent = chip.dataset.description;
+    topicModalImage.style.backgroundImage = `url("${chip.dataset.image}")`;
+
+    // Grow the modal out of the chip that was clicked.
+    const rect = chip.getBoundingClientRect();
+    const fromX = rect.left + rect.width / 2 - window.innerWidth / 2;
+    const fromY = rect.top + rect.height / 2 - window.innerHeight / 2;
+    const fromScale = clamp(rect.width / window.innerWidth, 0.18, 0.42);
+    topicModalFrame.style.setProperty('--modal-from-x', `${fromX.toFixed(1)}px`);
+    topicModalFrame.style.setProperty('--modal-from-y', `${fromY.toFixed(1)}px`);
+    topicModalFrame.style.setProperty('--modal-from-scale', fromScale.toFixed(3));
+
+    lastTrigger = chip;
+    topicModal.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('modal-open');
+    requestAnimationFrame(() => {
+      topicModal.classList.add('is-open');
+      closeButton?.focus();
+    });
+    pointChips.forEach((other) => other.classList.toggle('is-active', other === chip));
+  };
+
+  const closeTopicModal = () => {
+    if (!topicModal.classList.contains('is-open')) return;
+    topicModal.classList.remove('is-open');
+    topicModal.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('modal-open');
+    pointChips.forEach((chip) => chip.classList.remove('is-active'));
+    lastTrigger?.focus();
+  };
+
+  pointChips.forEach((chip) => {
+    chip.addEventListener('click', () => openTopicModal(chip));
+  });
+
+  topicModal.addEventListener('click', (event) => {
+    if (event.target instanceof HTMLElement && event.target.dataset.modalClose === 'true') {
+      closeTopicModal();
+    }
+  });
+
+  window.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') closeTopicModal();
+  });
+}
+
+/* ---------- Gallery lightbox ---------- */
+
+const lightbox = document.querySelector('#lightbox');
+const galleryItems = [...document.querySelectorAll('.gallery-item')];
+
+if (lightbox && galleryItems.length) {
+  const lightboxImage = lightbox.querySelector('img');
+  let lastGalleryItem = null;
+
+  const closeLightbox = () => {
+    if (!lightbox.classList.contains('is-open')) return;
+    lightbox.classList.remove('is-open');
+    lightbox.setAttribute('aria-hidden', 'true');
+    lastGalleryItem?.focus();
+  };
+
+  galleryItems.forEach((item) => {
+    item.addEventListener('click', () => {
+      lastGalleryItem = item;
+      lightboxImage.src = item.dataset.full;
+      lightboxImage.alt = item.querySelector('img')?.alt ?? '';
+      lightbox.setAttribute('aria-hidden', 'false');
+      lightbox.classList.add('is-open');
+    });
+  });
+
+  lightbox.addEventListener('click', closeLightbox);
+  window.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') closeLightbox();
+  });
+}

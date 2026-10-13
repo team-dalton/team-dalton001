@@ -1,0 +1,60 @@
+---
+import Base from '../layouts/Base.astro';
+import WorkCard from '../components/WorkCard.astro';
+import { url, getWorks } from '../lib/url';
+
+const works = await getWorks();
+---
+
+<Base hideBrand>
+  <!-- Tall on purpose: the logo stays pinned while scrolling plays the animation. -->
+  <header class="logo-hero" id="top">
+    <div class="logo-stage">
+      <h1 class="visually-hidden">Team Dalton</h1>
+      <video class="logo-video" muted playsinline preload="auto" src={url('/media/intro-scrub.mp4')} aria-hidden="true"></video>
+      <img class="logo-still" src={url('/media/logo.webp')} alt="" width="1200" height="239" />
+      <span class="scroll-cue" aria-hidden="true">Scroll</span>
+    </div>
+  </header>
+
+  <main>
+    <!-- Appears gradually as the page scrolls (see "Tagline" in site.js and global.css). -->
+    <section class="section container tagline" id="about">
+      <p class="tagline-lead">ドルトン東京学園中等部・高等部の生徒からなる</p>
+      <p class="tagline-main">総合デザインチーム</p>
+      <a class="text-link" href={url('/about/')}>About →</a>
+    </section>
+
+    <section class="section container tracked-section" id="works">
+      <h2 class="section-title">Works</h2>
+      <!-- Every work takes the large slot in turn, so no single work dominates. -->
+      <div class="work-rotator reveal" data-rotator>
+        <div class="work-rotator-stage">
+          {
+            works.map((work, index) => (
+              <div class:list={['work-slide', { 'is-active': index === 0 }]}>
+                <WorkCard work={work} featured reveal={false} />
+              </div>
+            ))
+          }
+        </div>
+        <div class="work-rotator-bar" aria-hidden="true"><span class="work-rotator-bar-fill"></span></div>
+        <div class="work-rotator-tabs" role="tablist" aria-label="作品を切り替える">
+          {
+            works.map((work, index) => (
+              <button
+                class:list={['work-tab', { 'is-active': index === 0 }]}
+                type="button"
+                role="tab"
+                aria-selected={index === 0 ? 'true' : 'false'}
+              >
+                {work.data.title}
+              </button>
+            ))
+          }
+        </div>
+      </div>
+      <a class="text-link reveal" href={url('/works/')}>All Works →</a>
+    </section>
+  </main>
+</Base>

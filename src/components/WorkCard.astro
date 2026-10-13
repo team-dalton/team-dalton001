@@ -1,0 +1,30 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { url } from '../lib/url';
+
+interface Props {
+  work: CollectionEntry<'works'>;
+  featured?: boolean;
+  // false when the card sits inside something that animates on its own (the home page rotator)
+  reveal?: boolean;
+}
+
+const { work, featured = false, reveal = true } = Astro.props;
+const { title, event, year, category, summary, cover, draft, sansTitle } = work.data;
+const description = [event, summary].filter(Boolean).join(' ');
+const Tag = draft ? 'article' : 'a';
+---
+
+<Tag
+  class:list={['work-card', { reveal, 'is-featured': featured, 'is-draft': draft }]}
+  href={draft ? undefined : url(`/works/${work.id}/`)}
+>
+  <div class="work-card-media">
+    {cover ? <img src={url(cover)} alt="" loading="lazy" /> : <span class="work-card-pending">Coming Soon</span>}
+  </div>
+  <div class="work-card-body">
+    {category && <span class="work-card-meta">{year} ・ {category}</span>}
+    <h3 class:list={['work-card-title', { 'is-sans': sansTitle }]}>{title}</h3>
+    {description && <p>{description}</p>}
+  </div>
+</Tag>

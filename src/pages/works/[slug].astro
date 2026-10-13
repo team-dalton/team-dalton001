@@ -1,0 +1,129 @@
+---
+import { render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import Backdrop from '../../components/Backdrop.astro';
+import Gallery from '../../components/Gallery.astro';
+import { url, getWorks } from '../../lib/url';
+
+export async function getStaticPaths() {
+  // Works with a hand-built page of their own in this folder.
+  const CUSTOM_PAGES = ['dalton-tokyo'];
+  const works = await getWorks();
+  return works
+    .filter((work) => !work.data.draft && !CUSTOM_PAGES.includes(work.id))
+    .map((work) => ({ params: { slug: work.id }, props: { work } }));
+}
+
+const { work } = Astro.props;
+// The defaults keep the page rendering if a long-running dev server has not picked up new fields yet.
+const {
+  title,
+  subtitle,
+  titleLead,
+  event,
+  theme,
+  awards = [],
+  photo,
+  photoCaption,
+  year,
+  category,
+  summary,
+  cover,
+  video,
+  gallery = [],
+  sansTitle,
+} = work.data;
+const { Content } = await render(work);
+const hasBody = (work.body ?? '').trim().length > 0;
+const description = summary ?? (event && theme ? `${event}「${theme}」出場作品「${title}」` : undefined);
+---
+
+<Base title={event ? `${title} | ${event}` : title} description={description} image={cover}>
+  <Backdrop slot="backdrop" image={cover} />
+
+  <header class="hero is-short" id="top">
+    <div class="hero-content container">
+      {
+        event ? (
+          <>
+            {titleLead && <p class="secondary-title is-lead">{titleLead}</p>}
+            <h1 class="main-title is-sans is-work-name">{title}</h1>
+            <p class="secondary-title">{[event, theme].filter(Boolean).join(': ')}</p>
+          </>
+        ) : (
+          <>
+            {category && <p class="eyebrow">{year} ・ {category}</p>}
+            <h1 class:list={['main-title', { 'is-sans': sansTitle }]}>{title}</h1>
+            {subtitle && <p class="secondary-title">{subtitle}</p>}
+          </>
+        )
+      }
+    </div>
+  </header>
+
+  <main data-darken-end>
+    {
+      (summary || hasBody || photo) && (
+        <section class="section container tracked-section" id="story">
+          <h2 class="section-title">About the Work</h2>
+          <div class:list={['work-about', 'reveal', { 'has-aside': Boolean(photo) }]}>
+            <div class="prose">
+              {summary && <p class="lead">{summary}</p>}
+              <Content />
+            </div>
+            {
+              photo && (
+                <aside class="work-aside">
+                  <figure class="work-photo">
+                    <img src={url(photo)} alt={photoCaption ?? `${title} 記念写真`} loading="lazy" />
+                    <figcaption>{photoCaption ?? '記念写真'}</figcaption>
+                  </figure>
+                </aside>
+              )
+            }
+          </div>
+        </section>
+      )
+    }
+
+    {
+      event && (
+        <section class="section is-tight container tracked-section" id="awards">
+          <h2 class="section-title">Awards</h2>
+          {
+            awards.length > 0 ? (
+              <ul class="award-list is-large reveal">
+                {awards.map((award) => (
+                  <li>{award}</li>
+                ))}
+              </ul>
+            ) : (
+              <p class="lead reveal">TBD</p>
+            )
+          }
+        </section>
+      )
+    }
+
+    {
+      video && (
+        <section class="section is-tight container tracked-section" id="video">
+          <video class="work-video reveal" src={url(video)} poster={cover && url(cover)} controls playsinline preload="metadata" />
+        </section>
+      )
+    }
+
+    {
+      gallery.length > 0 && (
+        <section class="section container tracked-section" id="gallery">
+          <h2 class="section-title">Gallery</h2>
+          <Gallery images={gallery} alt={title} />
+        </section>
+      )
+    }
+
+    <section class="section is-tight container">
+      <a class="text-link" href={url('/works/')}>← All Works</a>
+    </section>
+  </main>
+</Base>

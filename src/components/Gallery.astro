@@ -1,0 +1,20 @@
+---
+import { url } from '../lib/url';
+
+interface Props {
+  images: string[];
+  alt: string;
+}
+
+const { images, alt } = Astro.props;
+---
+
+<div class="gallery reveal">
+  {
+    images.map((image, index) => (
+      <button class="gallery-item" type="button" data-full={url(image)}>
+        <img src={url(image)} alt={`${alt} ${index + 1}`} loading="lazy" />
+      </button>
+    ))
+  }
+</div>

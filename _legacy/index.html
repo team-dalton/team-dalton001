@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dalton Tokyo in Minecraft</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;700;800&family=Playfair+Display:wght@600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="video-stage" aria-hidden="true">
+      <video class="hero-video is-active" id="hero-video-a" autoplay muted playsinline preload="auto">
+        <source src="assets/Website1.mp4" type="video/mp4" />
+      </video>
+      <video class="hero-video" id="hero-video-b" muted playsinline preload="auto"></video>
+      <div class="video-fallback"></div>
+      <div class="video-vignette"></div>
+      <div class="video-darken"></div>
+    </div>
+
+    <nav class="top-nav container" aria-label="Primary">
+      <span class="top-nav-left" aria-hidden="true">Team Dalton</span>
+      <div class="top-nav-right">
+        <a class="top-nav-link" href="home.html">Home</a>
+        <a class="top-nav-link" href="#about">About</a>
+        <div class="top-nav-item">
+          <a class="top-nav-link" href="#top">Works</a>
+          <div class="top-nav-dropdown">
+            <a class="top-nav-link" href="#top">Dalton Tokyo</a>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <header class="hero" id="top">
+      <div class="hero-content container">
+
+        <h1 class="main-title">Dalton Tokyo</h1>
+        <h2 class="secondary-title">
+          Junior &amp; Senior High School,<span class="secondary-tail">in Minecraft.</span>
+        </h2>
+
+        <a href="#access" class="cta">一般公開ワールドをダウンロード</a>
+      </div>
+    </header>
+
+    <div class="scroll-progress" aria-hidden="true">
+      <span class="scroll-progress-fill"></span>
+    </div>
+
+    <main>
+      <section class="section explanation container tracked-section" id="about">
+        <h3 class="section-title">なぜ、マインクラフト上に?</h3>
+        <p class="jp-placeholder reveal">
+          ドルトン東京学園は、毎年複数回学校説明会を実施し、施設公開等をしてきました。しかし、近年は様々な事情で来校できず、オンライン上の写真のみを参考に本校の雰囲気を掴むざるを得ない状況の方が増加傾向にあります。その問題を解決するために作られたのがMinecraft上のドルトン東京学園。いつでも、どこからでも校舎の探検を可能にしました。
+        </p>
+      </section>
+
+      <section class="section explore container tracked-section" id="explore">
+        <h3 class="section-title">広がる可能性</h3>
+        <div class="unlock-points reveal">
+          <button class="point-chip" type="button" data-key="campus">自由な校舎の歩き回り</button>
+          <button class="point-chip" type="button" data-key="simulative">シミュレーションに適した環境</button>
+          <button class="point-chip" type="button" data-key="alumni">卒業生の記憶</button>
+        </div>
+      </section>
+
+      <section class="section access container tracked-section" id="access">
+        <h3 class="section-title">一般公開ワールドをダウンロード</h3>
+        <p>バージョンを選択し、ワールドファイルを直接ダウンロード。</p>
+
+        <div class="download-grid">
+          <article class="download-card reveal">
+            <h4>Java Edition</h4>
+            <p>マインクラフトJava版用。</p>
+         <a class="download-button" href="assets/Dalton_Tokyo_一般.zip" download>
+  ダウンロード
+</a>
+          </article>
+
+          <article class="download-card reveal">
+            <h4>Bedrock Edition</h4>
+            <p>マインクラフトBedrock版用。</p>
+            <a class="download-button" href="assets/DaltonTokyo一般.mcworld" download>
+              ダウンロード
+            </a>
+          </article>
+        </div>
+      </section>
+
+      <section class="section creators container tracked-section" id="creators">
+        <h3 class="section-title">制作組織</h3>
+        <div class="creator-block reveal">
+          <div class="creator-copy">
+            <p>
+              「Team Dalton」は、ドルトン東京学園の生徒を中心とした有志組織で、街を作って全国の若者と競い合う「マインクラフトカップ」への出場をきっかけに立ち上げられました。全国大会で学校賞・奨励賞の受賞歴があり、その経験を活かして学校をマインクラフト上で再現するプロジェクトを、学校からの依頼で進めさせていただいております。建築、デザイン、プログラミングなど、多様なスキルを持つメンバーが協力し、リアルな校舎と魅力的な環境を作り上げようと努力を重ねてできた作品を、公開いたしました。
+            </p>
+            <p><strong>連絡はこちらから→ https://forms.gle/gKj23jaX9un7VdwU7</strong></p>
+          </div>
+          <div class="creator-image-slot" aria-hidden="true"></div>
+        </div>
+      </section>
+    </main>
+
+    <div class="topic-modal" id="topic-modal" aria-hidden="true">
+      <div class="topic-modal-backdrop" data-modal-close="true"></div>
+      <article
+        class="topic-modal-frame"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="topic-modal-title"
+        aria-describedby="topic-modal-description"
+      >
+        <button class="topic-modal-close" type="button" aria-label="Close popup" data-modal-close="true">
+          ×
+        </button>
+        <div class="topic-modal-body">
+          <div class="topic-modal-text">
+            <h4 id="topic-modal-title"></h4>
+            <p id="topic-modal-description"></p>
+          </div>
+          <div class="topic-modal-image" id="topic-modal-image" aria-hidden="true"></div>
+        </div>
+      </article>
+    </div>
+
+    <footer class="footer container">
+      <p>Team Dalton</p>
+      <a href="#top">トップ</a>
+    </footer>
+
+    <script src="script.js"></script>
+  </body>
+</html>

@@ -1,0 +1,16 @@
+{
+  "name": "team-dalton",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "astro dev stop; astro dev --force",
+    "build": "astro build",
+    "preview": "astro preview",
+    "import-videos": "node scripts/import-videos.mjs"
+  },
+  "type": "module",
+  "dependencies": {
+    "astro": "^7.3.6",
+    "sharp": "^0.35.5"
+  },
+  "private": true
+}

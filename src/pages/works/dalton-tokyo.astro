@@ -1,0 +1,163 @@
+---
+import Base from '../../layouts/Base.astro';
+import Backdrop from '../../components/Backdrop.astro';
+import Gallery from '../../components/Gallery.astro';
+import { url } from '../../lib/url';
+
+const topics = [
+  {
+    title: '自由な校舎の歩き回り',
+    description:
+      'いつでも、どこでも、ネット環境さえ整っていれば校舎の見学が可能に。様々な事情で対面の学校説明会に行けない時は、マインクラフトから見学をすることで実際と同じような雰囲気を味わえます。',
+    image: '/media/dalton-tokyo-01.webp',
+  },
+  {
+    title: 'シミュレーションに適した環境',
+    description:
+      '非常に正確な校舎の再現により、生徒・先生が感じる問題を再現し検証ができるような環境が実現。AIを用いた人道の工夫や安全性の向上のための仮説検証も期待ができます。',
+    image: '/media/dalton-tokyo-04.webp',
+  },
+  {
+    title: '卒業生の記憶',
+    description:
+      '卒業生が学校で過ごした思い出も、ブロックで再現。学校での楽しい思い出がある場所、友達とよく交流していた場所、気に入っていたスポットなど、卒業生が大切にしている場所をマインクラフト上で再現することで、学校の魅力の担保を実現しました。',
+    image: '/media/dalton-tokyo-05.webp',
+  },
+];
+
+// Keep these different from the images used in `topics` above, so nothing appears twice on the page.
+const gallery = [
+  '/media/dalton-tokyo-06.webp',
+  '/media/dalton-tokyo-07.webp',
+  '/media/dalton-tokyo-08.webp',
+  '/media/dalton-tokyo-09.webp',
+  '/media/dalton-tokyo-02.webp',
+  '/media/dalton-tokyo-03.webp',
+];
+
+const downloads = [
+  {
+    edition: 'Java Edition',
+    note: 'マインクラフトJava版用。',
+    file: '/downloads/DaltonTokyo-Java.zip',
+    size: '約67MB',
+  },
+  {
+    edition: 'Bedrock Edition',
+    note: 'マインクラフトBedrock版用。',
+    file: '/downloads/DaltonTokyo-Bedrock.mcworld',
+    size: '約35MB',
+  },
+];
+---
+
+<Base
+  title="Dalton Tokyo in Minecraft"
+  description="ドルトン東京学園の校舎をマインクラフト上に再現。いつでも、どこからでも校舎を探検できるワールドを一般公開しています。"
+  image="/media/dalton-tokyo-04.webp"
+>
+  <Backdrop
+    slot="backdrop"
+    image="/media/hero-poster.jpg"
+    videos={['/media/hero-1.mp4', '/media/hero-2.mp4', '/media/hero-3.mp4', '/media/hero-4.mp4']}
+  />
+
+  <header class="hero" id="top">
+    <div class="hero-content container">
+      <p class="eyebrow">学校プロジェクト</p>
+      <h1 class="main-title">Dalton Tokyo</h1>
+      <p class="secondary-title">
+        Junior &amp; Senior High School,<span class="secondary-tail">in Minecraft.</span>
+      </p>
+      <div class="hero-actions">
+        <a href="#access" class="cta is-primary">Download the World</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="section container tracked-section" id="about">
+      <h2 class="section-title">Why Minecraft?</h2>
+      <p class="lead reveal">
+        ドルトン東京学園は、毎年複数回学校説明会を実施し、施設公開等をしてきました。しかし、近年は様々な事情で来校できず、オンライン上の写真のみを参考に本校の雰囲気を掴まざるを得ない状況の方が増加傾向にあります。その問題を解決するために作られたのがMinecraft上のドルトン東京学園。いつでも、どこからでも校舎の探検を可能にしました。
+      </p>
+    </section>
+
+    <section class="section is-tight container tracked-section" id="video">
+      <video
+        class="work-video reveal"
+        src={url('/media/dalton-tokyo/main.mp4')}
+        poster={url('/media/dalton-tokyo/poster.jpg')}
+        controls
+        playsinline
+        preload="metadata"></video>
+      <p class="video-note reveal">
+        ※ 映像内では「ダウンロードは、ドルトン東京学園ホームページから。」と案内していますが、ワールドは学校のホームページではなく、<a
+          href="#access">このページ</a
+        >からダウンロードできます。
+      </p>
+    </section>
+
+    <section class="section container tracked-section" id="explore" data-darken-end>
+      <h2 class="section-title">Possibilities</h2>
+      <div class="unlock-points reveal">
+        {
+          topics.map((topic) => (
+            <button
+              class="point-chip"
+              type="button"
+              data-title={topic.title}
+              data-description={topic.description}
+              data-image={url(topic.image)}
+            >
+              {topic.title}
+            </button>
+          ))
+        }
+      </div>
+    </section>
+
+    <section class="section container tracked-section" id="gallery">
+      <h2 class="section-title">Gallery</h2>
+      <Gallery images={gallery} alt="マインクラフト上のドルトン東京学園" />
+    </section>
+
+    <section class="section container tracked-section" id="access">
+      <h2 class="section-title">Download the World</h2>
+
+      <div class="download-grid">
+        {
+          downloads.map((download) => (
+            <article class="download-card reveal">
+              <h3>{download.edition}</h3>
+              <p>{download.note}</p>
+              <a class="download-button" href={url(download.file)} download>
+                Download<span class="download-size">{download.size}</span>
+              </a>
+            </article>
+          ))
+        }
+      </div>
+    </section>
+  </main>
+
+  <div class="topic-modal" id="topic-modal" aria-hidden="true">
+    <div class="topic-modal-backdrop" data-modal-close="true"></div>
+    <article
+      class="topic-modal-frame"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="topic-modal-title"
+      aria-describedby="topic-modal-description"
+    >
+      <button class="topic-modal-close" type="button" aria-label="閉じる" data-modal-close="true">×</button>
+      <div class="topic-modal-body">
+        <div class="topic-modal-text">
+          <h3 id="topic-modal-title"></h3>
+          <p id="topic-modal-description"></p>
+        </div>
+        <div class="topic-modal-image" id="topic-modal-image" aria-hidden="true"></div>
+      </div>
+    </article>
+  </div>
+</Base>
